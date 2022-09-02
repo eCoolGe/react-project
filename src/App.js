@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import './styles/App.css';
 import TestCounter from "./components/TestCounter";
 import PostItem from "./components/PostItem";
@@ -11,22 +11,29 @@ import MySelect from "./components/UI/select/MySelect";
 import PostFilter from "./components/PostFilter";
 import MyModal from "./components/UI/MyModal/MyModal";
 import {usePosts} from "./hooks/usePosts";
+import axios from "axios";
+import PostService from "./API/PostService";
 
 function App() {
-    const [posts, setPosts] = useState([
-        {id: 1, title: 'aa', body: 'dd'},
-        {id: 2, title: 'dd', body: 'aa'},
-        {id: 3, title: 'cc', body: 'ff'},
-    ])
-
+    const [posts, setPosts] = useState([])
     const [filter, setFilter] = useState({sort: '', query: ''})
-    const [modal, setModal]= useState(false)
+    const [modal, setModal] = useState(false)
     const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query)
+
+    useEffect(() => {
+        fetchPosts()
+    }, [])
 
     const createPost = (newPost) => {
         setPosts([...posts, newPost])
         setModal(false)
     }
+
+    async function fetchPosts() {
+        const posts = await PostService.getAll()
+        setPosts(posts)
+    }
+
     const removePost = (post) => {
         setPosts(posts.filter(p => p.id !== post.id))
     }
